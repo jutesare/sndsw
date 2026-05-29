@@ -152,23 +152,51 @@ bool MuFilterHit::isShort(Int_t i){
 }
 
 // -----   Public method Get List of signals   -------------------------------------------
-std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask,Bool_t positive,Bool_t use_small_sipms)
+std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms,, Bool_t use_calibration)
 {
-          std::map<Int_t,Float_t> allSignals;
-          for (unsigned int s=0; s<nSides; ++s){
-              for (unsigned int j=0; j<nSiPMs; ++j){
-               unsigned int channel = j+s*nSiPMs;
-               if (signals[channel]<-900){continue;}
-               if (signals[channel]> 0 || !positive){
-                 if (!fMasked[channel] || !mask){
-                   if (!isShort(channel) || use_small_sipms){
-                    allSignals[channel] = signals[channel];
+    std::map<Int_t,Float_t> allSignals;
+
+    if (use_calibration){
+        // Load calibration constants for one bar (all SiPMs of the bar)
+        double calibrationConstants[16] = {0.0};
+        char inString[200];
+        char detectorIDstring[20];
+        sprintf(detectorIDstring, "\"%d", fDetectorID);
+        unsigned int SiPMnum = 0;
+        
+        FILE *calibrationConstantsFile = fopen("averageMIPpeakPos2025.json", "r");
+        
+        while (fscanf(calibrationConstantsFile, "%s", inString) == 1)
+        {
+            if(strstr(inString, detectorIDstring)!=0) {  //if match found, read value
+                SiPMnum = (int)(inString[6]-'0')*10 + (int)(inString[7]-'0');
+                fscanf(calibrationConstantsFile, "%s", inString);
+                calibrationConstants[SiPMnum] = atof(inString); 
+            }
+        }
+        fclose(calibrationConstantsFile);
+    }
+    
+    for (unsigned int s=0; s<nSides; ++s){
+        for (unsigned int j=0; j<nSiPMs; ++j){
+            unsigned int channel = j+s*nSiPMs;
+            if (signals[channel]<-900){continue;}
+            if (signals[channel]> 0 || !positive){
+                if (!fMasked[channel] || !mask){
+                    if (!isShort(channel) || use_small_sipms){
+                        if (!use_calibration){  // no calibration: raw signals
+                            allSignals[channel] = signals[channel];
+                        }
+                        else{  // with calibration: divide signals by SiPM-specific calibration constants
+                            SiPMnum = fDetectorID * 100 + channel;
+                            allSignals[channel] = signals[channel]/calibrationConstants[SiPMnum];
+                        }
                     }
-                 }
                 }
-              }
-          }
-          return allSignals;
+            }
+        }
+    }
+    return allSignals;
 }
 
 // -----   Public method Get List of time measurements   -------------------------------------------
