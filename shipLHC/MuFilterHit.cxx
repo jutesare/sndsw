@@ -8,6 +8,9 @@
 #include "TGeoBBox.h"
 #include <TRandom.h>
 #include <iomanip> 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // -----   Default constructor   -------------------------------------------
 MuFilterHit::MuFilterHit()
@@ -152,26 +155,39 @@ bool MuFilterHit::isShort(Int_t i){
 }
 
 // -----   Public method Get List of signals   -------------------------------------------
-std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms,, Bool_t use_calibration)
+std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms, Bool_t use_calibration)
 {
     std::map<Int_t,Float_t> allSignals;
-
+    // std::cout << "GetAllSignals called" << std::endl;
+    double calibrationConstants[16] = {0.0};
+    unsigned int channel = 0;
+    // std::cout << "Values initialised" << std::endl;
     if (use_calibration){
+        // std::cout << "Loading calibration constants" << std::endl;
         // Load calibration constants for one bar (all SiPMs of the bar)
-        double calibrationConstants[16] = {0.0};
         char inString[200];
         char detectorIDstring[20];
         sprintf(detectorIDstring, "\"%d", fDetectorID);
-        unsigned int SiPMnum = 0;
+        // std::cout << detectorIDstring << std::endl;
         
-        FILE *calibrationConstantsFile = fopen("averageMIPpeakPos2025.json", "r");
+        FILE *calibrationConstantsFile = fopen("/eos/user/j/jutesare/SiPMCalibration/averageMIPpeakPos2025.json", "r");
+        // std::cout << "Calibration constants file opened" << std::endl;
+
+//         if (calibrationConstantsFile == NULL) {
+//     std::cout << ("Opening file failed!!") << std::endl;
+//     return allSignals;
+// }
+//         else {
+//             std::cout << "No error when opening file." << std::endl;
+//         }
         
         while (fscanf(calibrationConstantsFile, "%s", inString) == 1)
         {
             if(strstr(inString, detectorIDstring)!=0) {  //if match found, read value
-                SiPMnum = (int)(inString[6]-'0')*10 + (int)(inString[7]-'0');
+                // std::cout << inString << std::endl;  //debug
+                channel = (int)(inString[6]-'0')*10 + (int)(inString[7]-'0');
                 fscanf(calibrationConstantsFile, "%s", inString);
-                calibrationConstants[SiPMnum] = atof(inString); 
+                calibrationConstants[channel] = atof(inString); 
             }
         }
         fclose(calibrationConstantsFile);
@@ -179,7 +195,7 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
     
     for (unsigned int s=0; s<nSides; ++s){
         for (unsigned int j=0; j<nSiPMs; ++j){
-            unsigned int channel = j+s*nSiPMs;
+            channel = j+s*nSiPMs;
             if (signals[channel]<-900){continue;}
             if (signals[channel]> 0 || !positive){
                 if (!fMasked[channel] || !mask){
@@ -188,8 +204,15 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
                             allSignals[channel] = signals[channel];
                         }
                         else{  // with calibration: divide signals by SiPM-specific calibration constants
-                            SiPMnum = fDetectorID * 100 + channel;
-                            allSignals[channel] = signals[channel]/calibrationConstants[SiPMnum];
+                            // SiPMnum = fDetectorID * 100 + channel;
+                            // std::cout << calibrationConstants[SiPMnum] <<std::endl;  //debug
+                            // std::cout << "hi" << std::endl;
+                            if (calibrationConstants[channel] <= 0.) {
+                                allSignals[channel] = 0.;
+                            }
+                            else {
+                                allSignals[channel] = signals[channel]/calibrationConstants[channel];
+                            }
                         }
                     }
                 }
