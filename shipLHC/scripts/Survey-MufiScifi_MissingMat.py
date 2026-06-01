@@ -328,8 +328,8 @@ if options.runNumber>0:
 else:
 # for MC data and other files
               f=ROOT.TFile.Open(options.fname)
-              if f.Get('rawConv'):   eventChain = f.Get("rawConv")
-              else:                        eventChain = f.Get("cbmsim")
+              if f.Get('rawConv'):   eventChain = f.rawConv
+              else:                        eventChain = f.cbmsim
 if options.remakeScifiClusters: eventChain.SetBranchStatus("Cluster_Scifi*",0)
 rc = eventChain.GetEvent(0)
 run      = ROOT.FairRunAna()
@@ -2834,7 +2834,7 @@ def analyze_EfficiencyAndResiduals(readHists=False,mode='S',local=True,zoom=Fals
      hist.GetYaxis().SetRangeUser(ymin,ymax)
      hist.Draw('colz')
 # get time x correlation, X = m*dt + b
-     h['gdtLRvsX_'+key] = ROOT.TGraphErrors()
+     h['gdtLRvsX_'+key] = ROOT.TGraph()
      g = h['gdtLRvsX_'+key]
      xproj = hist.ProjectionX('tmpx')
      if xproj.GetSumOfWeights()==0:   continue
@@ -2846,14 +2846,9 @@ def analyze_EfficiencyAndResiduals(readHists=False,mode='S',local=True,zoom=Fals
             X   = hist.GetXaxis().GetBinCenter(nx)
             rc = tmp.Fit('gaus','NQS')
             res = rc.Get()
-            if not res: 
-              dt = tmp.GetMean()
-              err = tmp.GetStd()
-            else:
-              dt = res.Parameter(1)
-              err =res.Parameter(2)
+            if not res: dt = tmp.GetMean()
+            else:   dt = res.Parameter(1)
             g.SetPoint(np,X,dt)
-            g.SetPointError(np, 0, err)
             np+=1
      g.SetLineColor(ROOT.kRed)
      g.SetLineWidth(2)
@@ -3518,7 +3513,9 @@ def Scifi_residuals(Nev=options.nEvents,NbinsRes=100,xmin=-2000.,alignPar=False,
            sortedClusters[so].append(aCl)
  
 # select events with clusters in each plane
-        if len(sortedClusters)<2*nScifi: continue
+        #n_max_scifi_planes = 2*nScifi #(comment if a mat is out)
+        n_max_scifi_planes = 2*nScifi-1 #uncomment if a mat is out
+        if len(sortedClusters)<n_max_scifi_planes: continue
         goodEvent = True
         for s in sortedClusters:
           if len(sortedClusters[s])>1: goodEvent=False
@@ -3539,7 +3536,9 @@ def Scifi_residuals(Nev=options.nEvents,NbinsRes=100,xmin=-2000.,alignPar=False,
                   validTrack = False
                   continue
                fitStatus = theTrack.getFitStatus()
-               if not fitStatus.isFitConverged() or theTrack.getNumPointsWithMeasurement()<2*(nScifi-1):
+               n_track_points = 2*(nScifi-1)
+               if s!=5: n_track_points=2*(nScifi-1)-1 #uncomment if a mat is out, e.g. 5v0. Adjust s!=... according to station of the mat that is out.
+               if not fitStatus.isFitConverged() or theTrack.getNumPointsWithMeasurement()<n_track_points:
                   theTrack.Delete()
                   validTrack = False
                   continue
@@ -3552,6 +3551,7 @@ def Scifi_residuals(Nev=options.nEvents,NbinsRes=100,xmin=-2000.,alignPar=False,
 # test plane
             for o in range(2):
                 testPlane = s*10+o
+                if not testPlane in sortedClusters.keys(): continue #uncomment if a mat is out
                 z = zPos['Scifi'][testPlane]
                 rep     = ROOT.genfit.RKTrackRep(13)
                 state  = ROOT.genfit.StateOnPlane(rep)
@@ -3767,7 +3767,7 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
     npar = nScifi*nMats*2 + nScifi*3
     if nMats ==1: npar += nScifi*3
     vstart  = array('d',[0]*npar)
-    h['Nevents'] = 3_000_000
+    h['Nevents'] = 1_000_000
     if first:
        h['xmin'] =-5000.
        X = Scifi_residuals(Nev=10000,NbinsRes=100,xmin=h['xmin'])
@@ -3844,110 +3844,60 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
           # first iteration: all parameters = 0
           #for i in range (npar):
           #  vstart[i]=0.0
+          
 
-          
-          # blank: 
-          """
-          # shifts
-          vstart[0] = 0.0 # s1
-          vstart[1] = 0.0
-          vstart[2] = 0.0
-          vstart[3] = 0.0
-          vstart[4] = 0.0
-          vstart[5] = 0.0
-          vstart[6] = 0.0 # s2
-          vstart[7] = 0.0
-          vstart[8] = 0.0
-          vstart[9] = 0.0
-          vstart[10] = 0.0
-          vstart[11] = 0.0
-          vstart[12] = 0.0 # s3
-          vstart[13] = 0.0
-          vstart[14] = 0.0
-          vstart[15] = 0.0
-          vstart[16] = 0.0
-          vstart[17] = 0.0
-          vstart[18] = 0.0 # s4
-          vstart[19] = 0.0
-          vstart[20] = 0.0
-          vstart[21] = 0.0
-          vstart[22] = 0.0
-          vstart[23] = 0.0
-          vstart[24] = 0.0 # s5
-          vstart[25] = 0.0
-          vstart[26] = 0.0
-          vstart[27] = 0.0
-          vstart[28] = 0.0
-          vstart[29] = 0.0
-          # rotation, three angles / station
-          vstart[30] = 0.0 # s1
-          vstart[31] = 0.0
-          vstart[32] = 0.0
-          vstart[33] = 0.0 # s2
-          vstart[34] = 0.0
-          vstart[35] = 0.0
-          vstart[36] = 0.0 # s3
-          vstart[37] = 0.0
-          vstart[38] = 0.0
-          vstart[39] = 0.0 # s4
-          vstart[40] = 0.0
-          vstart[41] = 0.0
-          vstart[42] = 0.0 # s5
-          vstart[43] = 0.0
-          vstart[44] = 0.0
-          """
-          
-          # iter 1 (manual) -> input for iter 2
 
-          # shifts
-          vstart[0] = 270.0 # s1
-          vstart[1] = 270.0
-          vstart[2] = 270.0
-          vstart[3] = -140.0
-          vstart[4] = -40.0
-          vstart[5] = -90.0
-          vstart[6] = 0.0 # s2
-          vstart[7] = 0.0
-          vstart[8] = 0.0
-          vstart[9] = -60.0
-          vstart[10] = 30.0
-          vstart[11] = -60.0
-          vstart[12] = -130.0 # s3
-          vstart[13] = -120.0
-          vstart[14] = -120.0
-          vstart[15] = 60.0
-          vstart[16] = -50.0
-          vstart[17] = 60.0
-          vstart[18] = -90.0 # s4
-          vstart[19] = -10.0
-          vstart[20] = 40.0
-          vstart[21] = 100.0
-          vstart[22] = 0.0
-          vstart[23] = 0.0
-          vstart[24] = 280.0 # s5
-          vstart[25] = 280.0
-          vstart[26] = 280.0
-          vstart[27] = -280.0
-          vstart[28] = 50.0
-          vstart[29] = -130.0
-          # rotation, three angles / station
-          vstart[30] = -0.3 # s1
-          vstart[31] = 0.0
-          vstart[32] = 0.0
-          vstart[33] = -0.3 # s2
-          vstart[34] = 0.0
-          vstart[35] = 0.0
-          vstart[36] = 0.5 # s3
-          vstart[37] = 0.0
-          vstart[38] = 0.0
-          vstart[39] = 0.3 # s4
-          vstart[40] = 0.0
-          vstart[41] = 0.0
-          vstart[42] = -0.5 # s5
-          vstart[43] = 0.0
-          vstart[44] = 0.0
+          # run2 iter9
           
-           
+          # shifts
+          vstart[0] = 385.78 # s1
+          vstart[1] = 414.57
+          vstart[2] = 345.23
+          vstart[3] = -188.43
+          vstart[4] = -125.87
+          vstart[5] = -75.15
+          vstart[6] = -184.34 # s2
+          vstart[7] = -108.25
+          vstart[8] = -208.02
+          vstart[9] = 152.45
+          vstart[10] = 244.56
+          vstart[11] = 228.59
+          vstart[12] = 1.00 # s3
+          vstart[13] = 48.14
+          vstart[14] = -56.59
+          vstart[15] = 159.00
+          vstart[16] = 131.02
+          vstart[17] = 191.70
+          vstart[18] = 269.80 # s4
+          vstart[19] = 291.84
+          vstart[20] = 330.59
+          vstart[21] = -433.21
+          vstart[22] = -465.53
+          vstart[23] = -428.92
+          vstart[24] = -175.32 # s5
+          vstart[25] = -225.90
+          vstart[26] = -249.68
+          vstart[27] = 0.00
+          vstart[28] = 325.05
+          vstart[29] = 191.00
+          # rotations
+          vstart[30] = 0.03 # s1
+          vstart[31] = -0.35
+          vstart[32] = -0.13
+          vstart[33] = 1.22 # s2
+          vstart[34] = -0.00
+          vstart[35] = -0.24
+          vstart[36] = 1.50 # s3
+          vstart[37] = 0.10
+          vstart[38] = 0.00
+          vstart[39] = -1.52 # s4
+          vstart[40] = -0.21
+          vstart[41] = 0.21
+          vstart[42] = 1.83 # s5
+          vstart[43] = -0.24
+          vstart[44] = 0.50
+          
+
           err = 20.
           h['xmin'] =-2000.
           h['npar'] = npar
@@ -4007,6 +3957,7 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
               for m in range(nMats): # mat
                   if s==3 and m==0: # fix one mat per orientation, as this is the way to go if I understand Simona's note on Muon flux correctly (https://cds.cern.ch/record/2859193)
                       gMinuit.FixParameter(p)
+                  elif s==5 and o==1 and m==0: gMinuit.FixParameter(p) #uncomment if a mat is out, e.g. 5v0; adjust numbers to match the mat that is out.
                   p+=1
       for s in range(1,nScifi+1): # station
           for a in range(3): # angles (0=phi, 1=psi, 2=theta)
@@ -4099,7 +4050,7 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
 def FCN(npar, gin, f, par, iflag):
 #calculate chisquare
    h['iter']+=1
-   if h['iter']>150: return
+   if h['iter']>1: return
    print("-------------------------- ITERATION {} --------------------------".format(h['iter']))
    print("---------- Current time: ", time.time())
    chisq  = 0
