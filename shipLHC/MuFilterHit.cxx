@@ -174,7 +174,7 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
                         }
                         else{  // with calibration: divide signals by SiPM-specific calibration constants
                             calibrationConstant = MuFilterDet->GetConfParF("MuFilter/SiPM_calibration_constant_"+std::to_string(fDetectorID*100+channel));
-                            if (calibrationConstants[channel] <= 0.) {
+                            if (calibrationConstant <= 0.) {
                                 allSignals[channel] = 0.;
                             }
                             else {
