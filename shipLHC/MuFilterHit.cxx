@@ -189,6 +189,27 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
     return allSignals;
 }
 
+
+// -----   OLD VERSION TO COMPARE RUNTIME! Public method Get List of signals   -------------------------------------------
+std::map<Int_t,Float_t> MuFilterHit::GetAllSignalsOld(Bool_t mask,Bool_t positive,Bool_t use_small_sipms)
+{
+          std::map<Int_t,Float_t> allSignals;
+          for (unsigned int s=0; s<nSides; ++s){
+              for (unsigned int j=0; j<nSiPMs; ++j){
+               unsigned int channel = j+s*nSiPMs;
+               if (signals[channel]<-900){continue;}
+               if (signals[channel]> 0 || !positive){
+                 if (!fMasked[channel] || !mask){
+                   if (!isShort(channel) || use_small_sipms){
+                    allSignals[channel] = signals[channel];
+                    }
+                 }
+                }
+              }
+          }
+          return allSignals;
+}
+
 /*
 // -----   Public method Get List of signals   -------------------------------------------
 std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms, Bool_t use_calibration)
