@@ -363,5 +363,4 @@ with ConfigRegistry.register_config("basic") as c:
         calibrationConstantsFile = open('/eos/user/j/jutesare/SiPMCalibration/averageMIPpeakPos2025.json')
         calibrationConstants = json.load(calibrationConstantsFile)
         for SiPM, constant in calibrationConstants.items():
-            setattr(c.MuFilter, 'SiPM_calibration_constant_'+SiPM, 1. if (math.isnan(constant) or constant<=0.) else constant)  # eventually want to absorb the case of nan or negative constants into the constant calculation and leave it out from here, simplifying this line
-            # c.MuFilter['SiPM_calibration_constant_'+SiPM] = 1. if (math.isnan(constant) or constant<=0.) else constant  # isn't this line redundant?
+            setattr(c.MuFilter, 'SiPM_calibration_constant_'+SiPM, 0. if (math.isnan(constant) or constant<=0.) else constant)  # eventually want to absorb the case of nan or negative constants into the constant calculation and leave it out from here, simplifying this line
