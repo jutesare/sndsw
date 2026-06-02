@@ -3898,7 +3898,7 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
           """
           
           # iter 1 (manual) -> input for iter 2
-
+          """
           # shifts
           vstart[0] = 270.0 # s1
           vstart[1] = 270.0
@@ -3946,6 +3946,157 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
           vstart[42] = -0.5 # s5
           vstart[43] = 0.0
           vstart[44] = 0.0
+          """
+          # iter 2 results
+          """
+          # shifts
+          vstart[0] =  261.93 # s1
+          vstart[1] =  290.28 
+          vstart[2] =  289.43 
+          vstart[3] =  -121.70 
+          vstart[4] =  -22.83 
+          vstart[5] =  -73.97 
+          vstart[6] =  14.90 # s2
+          vstart[7] =  14.06 
+          vstart[8] =  -6.06 
+          vstart[9] =  -43.87 
+          vstart[10] =  23.19 
+          vstart[11] =  -67.13 
+          vstart[12] =  -130.00 # s3
+          vstart[13] =  -101.56 
+          vstart[14] =  -150.30 
+          vstart[15] =  60.00 
+          vstart[16] =  -30.89 
+          vstart[17] =  78.48 
+          vstart[18] =  -71.75 # s4
+          vstart[19] =  7.12 
+          vstart[20] =  56.26 
+          vstart[21] =  115.88 
+          vstart[22] =  15.73 
+          vstart[23] =  15.67 
+          vstart[24] =  295.83 # s5
+          vstart[25] =  344.91 
+          vstart[26] =  296.14 
+          vstart[27] =  -218.94 
+          vstart[28] =  64.13 
+          vstart[29] =  -117.00 
+          # rotations
+          vstart[30] =  -0.35 # s1
+          vstart[31] =  0.07 
+          vstart[32] =  0.10 
+          vstart[33] =  -0.25 # s2
+          vstart[34] =  -0.03 
+          vstart[35] =  0.25 
+          vstart[36] =  0.50 # s3
+          vstart[37] =  0.00 
+          vstart[38] =  0.00 
+          vstart[39] =  0.35 # s4
+          vstart[40] =  -0.07 
+          vstart[41] =  0.13 
+          vstart[42] =  -0.48 # s5
+          vstart[43] =  -0.04 
+          vstart[44] =  0.05 
+          """
+          # iter 3 (manual) -> iter 4
+          """
+          # shifts
+          vstart[0] =  241.93 # s1
+          vstart[1] =  270.28 
+          vstart[2] =  269.43 
+          vstart[3] =  -141.70 
+          vstart[4] =  -42.83 
+          vstart[5] =  -93.97 
+          vstart[6] =  9.90 # s2
+          vstart[7] =  9.06 
+          vstart[8] =  -11.06 
+          vstart[9] =  -43.87 
+          vstart[10] =  23.19 
+          vstart[11] =  -67.13 
+          vstart[12] =  -130.00 # s3
+          vstart[13] =  -101.56 
+          vstart[14] =  -150.30 
+          vstart[15] =  60.00 
+          vstart[16] =  -30.89 
+          vstart[17] =  78.48 
+          vstart[18] =  -71.75 # s4
+          vstart[19] =  7.12 
+          vstart[20] =  56.26 
+          vstart[21] =  115.88 
+          vstart[22] =  15.73 
+          vstart[23] =  15.67 
+          vstart[24] =  275.83 # s5
+          vstart[25] =  324.91 
+          vstart[26] =  276.14 
+          vstart[27] =  -233.94 
+          vstart[28] =  49.13 
+          vstart[29] =  -132.00 
+          # rotations
+          vstart[30] =  -0.35 # s1
+          vstart[31] =  0.07 
+          vstart[32] =  0.10 
+          vstart[33] =  -0.25 # s2
+          vstart[34] =  -0.03 
+          vstart[35] =  0.25 
+          vstart[36] =  0.50 # s3
+          vstart[37] =  0.00 
+          vstart[38] =  0.00 
+          vstart[39] =  0.35 # s4
+          vstart[40] =  -0.07 
+          vstart[41] =  0.13 
+          vstart[42] =  -0.48 # s5
+          vstart[43] =  -0.04 
+          vstart[44] =  0.05
+          """
+
+          # iter 4 results
+          # shifts
+          vstart[0] =  261.93 # s1
+          vstart[1] =  290.28 
+          vstart[2] =  289.43 
+          vstart[3] =  -121.70 
+          vstart[4] =  -22.83 
+          vstart[5] =  -73.97 
+          vstart[6] =  9.90 # s2
+          vstart[7] =  9.06 
+          vstart[8] =  -11.06 
+          vstart[9] =  -43.87 
+          vstart[10] =  23.19 
+          vstart[11] =  -67.13 
+          vstart[12] =  -130.00 # s3
+          vstart[13] =  -101.56 
+          vstart[14] =  -150.30 
+          vstart[15] =  60.00 
+          vstart[16] =  -30.89 
+          vstart[17] =  78.48 
+          vstart[18] =  -71.75 # s4
+          vstart[19] =  7.12 
+          vstart[20] =  56.26 
+          vstart[21] =  115.88 
+          vstart[22] =  15.73 
+          vstart[23] =  15.67 
+          vstart[24] =  275.83 # s5
+          vstart[25] =  324.91 
+          vstart[26] =  276.14 
+          vstart[27] =  -233.94 
+          vstart[28] =  49.13 
+          vstart[29] =  -132.00 
+          # rotations
+          vstart[30] =  -0.35 # s1
+          vstart[31] =  0.07 
+          vstart[32] =  0.10 
+          vstart[33] =  -0.25 # s2
+          vstart[34] =  -0.03 
+          vstart[35] =  0.25 
+          vstart[36] =  0.50 # s3
+          vstart[37] =  0.00 
+          vstart[38] =  0.00 
+          vstart[39] =  0.35 # s4
+          vstart[40] =  -0.07 
+          vstart[41] =  0.13 
+          vstart[42] =  -0.48 # s5
+          vstart[43] =  -0.04 
+          vstart[44] =  0.05 
+
           
            
           err = 20.
@@ -4099,7 +4250,7 @@ def minimizeAlignScifi(first=False,level=2,migrad=False):
 def FCN(npar, gin, f, par, iflag):
 #calculate chisquare
    h['iter']+=1
-   if h['iter']>150: return
+   if h['iter']>1: return
    print("-------------------------- ITERATION {} --------------------------".format(h['iter']))
    print("---------- Current time: ", time.time())
    chisq  = 0
