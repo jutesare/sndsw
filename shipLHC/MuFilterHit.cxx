@@ -178,7 +178,7 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
                                 allSignals[channel] = 0.;
                             }
                             else {
-                                allSignals[channel] = signals[channel]/calibrationConstants[channel];
+                                allSignals[channel] = signals[channel]/calibrationConstant;
                             }
                         }
                     }
