@@ -158,33 +158,52 @@ bool MuFilterHit::isShort(Int_t i){
 std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms, Bool_t use_calibration)
 {
     std::map<Int_t,Float_t> allSignals;
-    // std::cout << "GetAllSignals called" << std::endl;
+    float calibrationConstant = 0.;
+    unsigned int channel = 0;
+    
+    for (unsigned int s=0; s<nSides; ++s){
+        for (unsigned int j=0; j<nSiPMs; ++j){
+            channel = j+s*nSiPMs;
+            if (signals[channel]<-900){continue;}
+            if (signals[channel]> 0 || !positive){
+                if (!fMasked[channel] || !mask){
+                    if (!isShort(channel) || use_small_sipms){
+                        if (!use_calibration){  // no calibration: raw signals
+                            allSignals[channel] = signals[channel];
+                        }
+                        else{  // with calibration: divide signals by SiPM-specific calibration constants
+                            calibrationConstant = MuFilterDet->GetConfParF("MuFilter/SiPM_calibration_constant_"+std::to_string(fDetectorID*100+channel));
+                            if (calibrationConstants[channel] <= 0.) {
+                                allSignals[channel] = 0.;
+                            }
+                            else {
+                                allSignals[channel] = signals[channel]/calibrationConstants[channel];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return allSignals;
+}
+
+/*
+// -----   Public method Get List of signals   -------------------------------------------
+std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms, Bool_t use_calibration)
+{
+    std::map<Int_t,Float_t> allSignals;
     double calibrationConstants[16] = {0.0};
     unsigned int channel = 0;
-    // std::cout << "Values initialised" << std::endl;
     if (use_calibration){
-        // std::cout << "Loading calibration constants" << std::endl;
-        // Load calibration constants for one bar (all SiPMs of the bar)
         char inString[200];
         char detectorIDstring[20];
         sprintf(detectorIDstring, "\"%d", fDetectorID);
-        // std::cout << detectorIDstring << std::endl;
         
         FILE *calibrationConstantsFile = fopen("/eos/user/j/jutesare/SiPMCalibration/averageMIPpeakPos2025.json", "r");
-        // std::cout << "Calibration constants file opened" << std::endl;
-
-//         if (calibrationConstantsFile == NULL) {
-//     std::cout << ("Opening file failed!!") << std::endl;
-//     return allSignals;
-// }
-//         else {
-//             std::cout << "No error when opening file." << std::endl;
-//         }
-        
         while (fscanf(calibrationConstantsFile, "%s", inString) == 1)
         {
             if(strstr(inString, detectorIDstring)!=0) {  //if match found, read value
-                // std::cout << inString << std::endl;  //debug
                 channel = (int)(inString[6]-'0')*10 + (int)(inString[7]-'0');
                 fscanf(calibrationConstantsFile, "%s", inString);
                 calibrationConstants[channel] = atof(inString); 
@@ -221,6 +240,7 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
     }
     return allSignals;
 }
+*/
 
 // -----   Public method Get List of time measurements   -------------------------------------------
 std::map<Int_t,Float_t> MuFilterHit::GetAllTimes(Bool_t mask,Bool_t positive,Bool_t use_small_sipms)

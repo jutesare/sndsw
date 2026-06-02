@@ -1,6 +1,7 @@
 import ROOT as r
 import shipunit as u
 from ShipGeoConfig import AttrDict, ConfigRegistry
+import json
 
 if "nuTargetPassive" not in globals():
     nuTargetPassive = True
@@ -356,3 +357,10 @@ with ConfigRegistry.register_config("basic") as c:
         c.Floor.MFeBlockX = c.MuFilter.FeX
         c.Floor.MFeBlockY = c.MuFilter.FeY
         c.Floor.MFeBlockZ = c.MuFilter.FeZ
+
+        # SiPM calibration constants
+        calibrationConstantsFile = open('/eos/user/j/jutesare/SiPMCalibration/averageMIPpeakPos2025.json')
+        calibrationConstants = json.load(calibrationConstantsFile)
+        for SiPM, constant in calibrationConstants.items():
+            setattr(c.MuFilter,'SiPM_calibration_constant_'+SiPM, 0 if (np.isnan(constant) or constant<=0) else constant)  # eventually want to absorb the case of nan or negative constants into the constant calculation and leave it out from here, simplifying this line
+            # c.MuFilter['SiPM_calibration_constant_'+SiPM] = 0 if (np.isnan(constant) or constant<=0) else constant  # isn't this line redundant?
