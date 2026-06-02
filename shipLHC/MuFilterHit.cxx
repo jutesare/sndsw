@@ -160,6 +160,7 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
     std::map<Int_t,Float_t> allSignals;
     float calibrationConstant = 0.;
     unsigned int channel = 0;
+    MuFilter* MuFilterDet = dynamic_cast<MuFilter*> (gROOT->GetListOfGlobals()->FindObject("MuFilter"));
     
     for (unsigned int s=0; s<nSides; ++s){
         for (unsigned int j=0; j<nSiPMs; ++j){
