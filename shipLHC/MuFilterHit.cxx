@@ -158,12 +158,7 @@ bool MuFilterHit::isShort(Int_t i){
 std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive, Bool_t use_small_sipms, Bool_t use_calibration)
 {
     std::map<Int_t,Float_t> allSignals;
-
-    MuFilter* MuFilterDet;
-    if (use_calibration){  // load MuFilter object which holds the calibration constants
-        MuFilterDet = dynamic_cast<MuFilter*> (gROOT->GetListOfGlobals()->FindObject("MuFilter"));
-    }
-    
+ 
     for (unsigned int s=0; s<nSides; ++s){
         for (unsigned int j=0; j<nSiPMs; ++j){
             unsigned int channel = j+s*nSiPMs;
@@ -175,7 +170,7 @@ std::map<Int_t,Float_t> MuFilterHit::GetAllSignals(Bool_t mask, Bool_t positive,
                             allSignals[channel] = signals[channel];
                         }
                         else{  // with calibration: divide signals by SiPM-specific calibration constants
-                            float calibrationConstant = MuFilterDet->GetConfParF("MuFilter/SiPM_qdc_calibration_constant_"+std::to_string(fDetectorID*100+channel));
+                            float calibrationConstant = SiPM_qdc_calibration_constants[fDetectorID*100+channel];
                             if (calibrationConstant <= 0.){
                                 allSignals[channel] = 0.;
                             }
