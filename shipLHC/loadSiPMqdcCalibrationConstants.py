@@ -4,7 +4,7 @@ import ROOT
 def loadConstants(constantsJSONpath="averageMIPpeakPos2025.json"):
     ROOT.gInterpreter.Declare(r"""
     #include <map>
-    std::map<int, double> SiPM_qdc_calibration_constants;
+    extern std::map<int, double> SiPM_qdc_calibration_constants;
     """)
 
     with open(constantsJSONpath) as f:
